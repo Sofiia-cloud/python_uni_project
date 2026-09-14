@@ -1,51 +1,116 @@
-from datetime import date, time
+"""Точка запуска приложения «Сервис поиска свободных аудиторий»."""
 
+from datetime import date
 
-# Данные об аудитории
-room_number = 'А-301'
-room_capacity = 30
-room_building = 'Корпус А'
-room_has_projector = True
-
-# Данные о запросе на бронирование
-requested_date = date(2026, 9, 15)
-requested_start = time(14, 0)
-requested_end = time(15, 30)
-requested_people = 25
-
-# Данные о существующем занятии в этой аудитории
-existing_lesson_date = date(2026, 9, 15)
-existing_lesson_start = time(13, 30)
-existing_lesson_end = time(15, 0)
-
-# Проверка пересечения по времени:
-# занятие пересекается с запросом, если начало запроса раньше конца занятия
-# и конец запроса позже начала занятия.
-time_overlap = (
-    requested_date == existing_lesson_date
-    and requested_start < existing_lesson_end
-    and requested_end > existing_lesson_start
+from bookings import (
+    cancel_booking,
+    create_booking,
+    get_booking_status,
+    is_room_available,
 )
+from rooms import (
+    add_room,
+    check_room_capacity,
+    filter_rooms_by_capacity,
+    find_room,
+    sort_rooms,
+)
+from storage import load_bookings, load_rooms, save_bookings, save_rooms
+from utils import input_date, input_int
 
-# Проверка вместимости
-capacity_ok = requested_people <= room_capacity
+ROOMS_FILE = 'data/rooms.json'
+BOOKINGS_FILE = 'data/bookings.json'
 
-# Проверка наличия проектора (если нужно больше 20 человек — желателен проектор)
-projector_ok = requested_people <= 20 or room_has_projector
 
-can_book = not time_overlap and capacity_ok and projector_ok
+def show_rooms(rooms: dict[int, dict]) -> None:
+    """Вывести список аудиторий."""
+    if not rooms:
+        print('Список аудиторий пуст.')
+        return
+    print('--- Аудитории ---')
+    for room_id, data in rooms.items():
+        print(f'  id={room_id}: {data["name"]} (до {data["capacity"]} чел.)')
 
-print(f'Аудитория: {room_number} ({room_building})')
-print(f'Вместимость: {room_capacity} мест')
-print(f'Проектор: {"есть" if room_has_projector else "нет"}')
-print()
-print(f'Запрос на бронирование:')
-print(f'  Дата: {requested_date}')
-print(f'  Время: {requested_start}–{requested_end}')
-print(f'  Количество человек: {requested_people}')
-print()
-print(f'Пересечение с занятием: {"да" if time_overlap else "нет"}')
-print(f'Достаточно мест: {"да" if capacity_ok else "нет"}')
-print(f'Условия по оборудованию: {"выполнены" if projector_ok else "не выполнены"}')
-print()
-print(f'Бронирование возможно: {"ДА" if can_book else "НЕТ"}')
+
+def show_bookings(bookings: list[dict], rooms: dict[int, dict]) -> None:
+    """Вывести список бронирований."""
+    if not bookings:
+        print('Бронирований нет.')
+        return
+    print('--- Бронирования ---')
+    for booking in bookings:
+        room = rooms.get(booking['room_id'], {'name': '?'})
+        print(
+            f'  id={booking["id"]}: {room["name"]} '
+            f'на {booking["date"]}'
+        )
+
+
+def main() -> None:
+    """Точка запуска: меню приложения."""
+    rooms = load_rooms(ROOMS_FILE)
+    bookings = load_bookings(BOOKINGS_FILE)
+
+    while True:
+        print()
+        print('=== Сервис поиска свободных аудиторий ===')
+        print('1. Показать аудитории')
+        print('2. Найти аудиторию по названию')
+        print('3. Проверить вместимость')
+        print('4. Проверить доступность на дату')
+        print('5. Забронировать аудиторию')
+        print('6. Отменить бронирование')
+        print('7. Показать бронирования')
+        print('8. Отсортировать аудитории по вместимости')
+        print('0. Выход')
+
+        choice = input_int('Выберите действие: ')
+
+        if choice == 1:
+            show_rooms(rooms)
+        elif choice == 2:
+            query = input('Подстрока названия: ')
+            found = find_room(rooms, query)
+            show_rooms(found)
+        elif choice == 3:
+            room_id = input_int('id аудитории: ')
+            min_capacity = input_int('Минимальная вместимость: ')
+            ok = check_room_capacity(rooms, room_id, min_capacity)
+            print('Подходит' if ok else 'Не подходит')
+        elif choice == 4:
+            room_id = input_int('id аудитории: ')
+            booking_date = input_date('Дата (ДД.ММ.ГГГГ): ')
+            available = is_room_available(bookings, room_id, booking_date)
+            print(get_booking_status(available))
+        elif choice == 5:
+            room_id = input_int('id аудитории: ')
+            booking_date = input_date('Дата (ДД.ММ.ГГГГ): ')
+            created = create_booking(bookings, room_id, booking_date)
+            if created:
+                save_bookings(BOOKINGS_FILE, bookings)
+                print(f'Бронирование создано (id={created["id"]}).')
+            else:
+                print('Не удалось создать бронирование: помещение занято.')
+        elif choice == 6:
+            booking_id = input_int('id бронирования: ')
+            if cancel_booking(bookings, booking_id):
+                save_bookings(BOOKINGS_FILE, bookings)
+                print('Бронирование отменено.')
+            else:
+                print('Бронирование не найдено.')
+        elif choice == 7:
+            show_bookings(bookings, rooms)
+        elif choice == 8:
+            for room_id, data in sort_rooms(rooms):
+                print(f'  id={room_id}: {data["name"]} ({data["capacity"]})')
+        elif choice == 0:
+            save_rooms(ROOMS_FILE, rooms)
+            save_bookings(BOOKINGS_FILE, bookings)
+            print('Данные сохранены. До встречи!')
+            break
+        else:
+            print('Неизвестная команда.')
+
+
+if __name__ == '__main__':
+    main()
