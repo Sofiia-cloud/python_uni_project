@@ -1,6 +1,3 @@
-"""Точка запуска приложения «Сервис поиска свободных аудиторий»."""
-
-from datetime import date
 
 from bookings import (
     cancel_booking,
@@ -9,9 +6,7 @@ from bookings import (
     is_room_available,
 )
 from rooms import (
-    add_room,
     check_room_capacity,
-    filter_rooms_by_capacity,
     find_room,
     sort_rooms,
 )

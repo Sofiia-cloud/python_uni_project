@@ -1,7 +1,5 @@
 """Функции для работы с аудиториями."""
 
-from typing import Optional
-
 
 def add_room(rooms: dict[int, dict], room_name: str, capacity: int) -> None:
     """Добавить аудиторию в словарь rooms."""
