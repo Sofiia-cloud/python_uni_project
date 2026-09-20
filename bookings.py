@@ -11,13 +11,17 @@ def is_room_available(
         if (
             booking['room_id'] == room_id
             and booking['date'] == booking_date.isoformat()
+            and not booking.get('is_cancelled', False)
         ):
             return False
     return True
 
 
 def create_booking(
-    bookings: list[dict], room_id: int, booking_date: date
+    bookings: list[dict],
+    room_id: int,
+    booking_date: date,
+    user_id: int,
 ) -> dict | None:
     """Создать бронирование, если аудитория свободна."""
     if not is_room_available(bookings, room_id, booking_date):
@@ -30,16 +34,18 @@ def create_booking(
         'id': booking_id,
         'room_id': room_id,
         'date': booking_date.isoformat(),
+        'user_id': user_id,
+        'is_cancelled': False,
     }
     bookings.append(new_booking)
     return new_booking
 
 
 def cancel_booking(bookings: list[dict], booking_id: int) -> bool:
-    """Отменить бронирование по идентификатору."""
+    """Отменить бронирование (пометить is_cancelled=True)."""
     for booking in bookings:
         if booking['id'] == booking_id:
-            bookings.remove(booking)
+            booking['is_cancelled'] = True
             return True
     return False
 

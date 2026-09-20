@@ -1,6 +1,12 @@
 """Тесты функций работы с аудиториями."""
 
-from rooms import add_room, check_room_capacity, find_room, sort_rooms
+from rooms import (
+    add_room,
+    check_room_capacity,
+    filter_rooms_by_capacity,
+    find_room,
+    sort_rooms,
+)
 
 
 def test_add_room():
@@ -19,6 +25,13 @@ def test_check_room_capacity():
     rooms = {}
     add_room(rooms, 'Конференц-зал', 60)
     assert check_room_capacity(rooms, 1, 50)
+
+
+def test_filter_rooms_by_capacity():
+    rooms = {}
+    add_room(rooms, 'Малая', 10)
+    add_room(rooms, 'Большая', 100)
+    assert len(filter_rooms_by_capacity(rooms, 50)) == 1
 
 
 def test_sort_rooms():

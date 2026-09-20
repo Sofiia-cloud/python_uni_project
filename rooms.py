@@ -20,6 +20,11 @@ def find_room(rooms: dict[int, dict], query: str) -> dict[int, dict]:
     return found
 
 
+def find_room_by_id(rooms: dict[int, dict], room_id: int) -> dict | None:
+    """Найти аудиторию по идентификатору."""
+    return rooms.get(room_id)
+
+
 def check_room_capacity(
     rooms: dict[int, dict], room_id: int, min_capacity: int
 ) -> bool:
@@ -45,5 +50,15 @@ def sort_rooms(rooms: dict[int, dict]) -> list[tuple[int, dict]]:
     return sorted(
         rooms.items(),
         key=lambda item: item[1]['capacity'],
-        reverse=True
+        reverse=True,
     )
+
+
+def show_rooms(rooms: dict[int, dict]) -> None:
+    """Вывести список аудиторий."""
+    if not rooms:
+        print('Список аудиторий пуст.')
+        return
+    print('--- Аудитории ---')
+    for room_id, data in rooms.items():
+        print(f'  id={room_id}: {data["name"]} (до {data["capacity"]} чел.)')
