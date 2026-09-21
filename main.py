@@ -1,18 +1,27 @@
 """Точка запуска приложения «Сервис поиска свободных аудиторий»."""
 
-from bookings import (
+from models import Booking, Room, User
+from models.bookings import (
     cancel_booking,
     create_booking,
     get_booking_status,
     is_room_available,
+    show_bookings,
 )
-from rooms import (
+from models.rooms import (
     add_room,
     check_room_capacity,
     filter_rooms_by_capacity,
     find_room,
+    find_room_by_id,
     show_rooms,
     sort_rooms,
+)
+from models.users import (
+    add_user,
+    find_user,
+    find_user_by_id,
+    show_users,
 )
 from storage import (
     load_bookings,
@@ -22,7 +31,6 @@ from storage import (
     save_rooms,
     save_users,
 )
-from users import add_user, find_user, show_users
 from utils import input_date, input_int
 
 ROOMS_FILE = 'data/rooms.json'
@@ -30,45 +38,29 @@ USERS_FILE = 'data/users.json'
 BOOKINGS_FILE = 'data/bookings.json'
 
 
-def show_bookings(
-    bookings: list[dict],
-    rooms: dict[int, dict],
-    users: dict[int, dict],
-) -> None:
-    """Вывести список бронирований."""
-    if not bookings:
-        print('Бронирований нет.')
-        return
-    print('--- Бронирования ---')
-    for booking in bookings:
-        room = rooms.get(booking['room_id'], {'name': '?'})
-        user = users.get(booking['user_id'], {'name': '?'})
-        status = 'отменено' if booking.get('is_cancelled', False) else 'активн'
-        print(
-            f'  id={booking["id"]}: {room["name"]} '
-            f'на {booking["date"]} — {user["name"]} ({status})'
-        )
-
-
 def create_new_booking(
-    bookings: list[dict],
-    rooms: dict[int, dict],
-    users: dict[int, dict],
+    bookings: list[Booking],
+    rooms: list[Room],
+    users: list[User],
 ) -> None:
     """Сценарий создания бронирования."""
     room_id = input_int('id аудитории: ')
-    if room_id not in rooms:
+    room = find_room_by_id(rooms, room_id)
+    if room is None:
         print('Аудитория не найдена.')
         return
+
     user_id = input_int('id пользователя: ')
-    if user_id not in users:
+    user = find_user_by_id(users, user_id)
+    if user is None:
         print('Пользователь не найден.')
         return
+
     booking_date = input_date('Дата (ДД.ММ.ГГГГ): ')
-    created = create_booking(bookings, room_id, booking_date, user_id)
+    created = create_booking(bookings, room, booking_date, user)
     if created:
         save_bookings(BOOKINGS_FILE, bookings)
-        print(f'Бронирование создано (id={created["id"]}).')
+        print(f'Бронирование создано (id={created.id}).')
     else:
         print('Не удалось создать бронирование: помещение занято.')
 
@@ -77,7 +69,7 @@ def main() -> None:
     """Точка запуска: меню приложения."""
     rooms = load_rooms(ROOMS_FILE)
     users = load_users(USERS_FILE)
-    bookings = load_bookings(BOOKINGS_FILE)
+    bookings = load_bookings(BOOKINGS_FILE, rooms, users)
 
     while True:
         print()
@@ -124,10 +116,10 @@ def main() -> None:
             else:
                 print('Бронирование не найдено.')
         elif choice == 7:
-            show_bookings(bookings, rooms, users)
+            show_bookings(bookings)
         elif choice == 8:
-            for room_id, data in sort_rooms(rooms):
-                print(f'  id={room_id}: {data["name"]} ({data["capacity"]})')
+            for room in sort_rooms(rooms):
+                print(f'  id={room.id}: {room}')
         elif choice == 9:
             show_users(users)
         elif choice == 10:

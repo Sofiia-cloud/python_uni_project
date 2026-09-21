@@ -1,6 +1,7 @@
-"""Тесты функций работы с аудиториями."""
+"""Тесты класса Room и функций работы с аудиториями."""
 
-from rooms import (
+from models import Room
+from models.rooms import (
     add_room,
     check_room_capacity,
     filter_rooms_by_capacity,
@@ -9,34 +10,52 @@ from rooms import (
 )
 
 
+def test_room_creation():
+    room = Room(1, 'Аудитория 301', 30)
+    assert room.id == 1
+    assert room.name == 'Аудитория 301'
+    assert room.capacity == 30
+
+
+def test_room_is_suitable_for():
+    room = Room(1, 'Аудитория 301', 30)
+    assert room.is_suitable_for(20)
+    assert not room.is_suitable_for(40)
+
+
+def test_room_str():
+    room = Room(1, 'Аудитория 301', 30)
+    assert 'Аудитория 301' in str(room)
+
+
 def test_add_room():
-    rooms = {}
+    rooms = []
     add_room(rooms, 'Аудитория 301', 30)
     assert len(rooms) == 1
 
 
 def test_find_room():
-    rooms = {}
+    rooms = []
     add_room(rooms, 'Аудитория 301', 30)
     assert find_room(rooms, 'аудитория')
 
 
 def test_check_room_capacity():
-    rooms = {}
+    rooms = []
     add_room(rooms, 'Конференц-зал', 60)
     assert check_room_capacity(rooms, 1, 50)
 
 
 def test_filter_rooms_by_capacity():
-    rooms = {}
+    rooms = []
     add_room(rooms, 'Малая', 10)
     add_room(rooms, 'Большая', 100)
     assert len(filter_rooms_by_capacity(rooms, 50)) == 1
 
 
 def test_sort_rooms():
-    rooms = {}
+    rooms = []
     add_room(rooms, 'Малая', 10)
     add_room(rooms, 'Большая', 100)
     sorted_rooms = sort_rooms(rooms)
-    assert sorted_rooms[0][1]['capacity'] == 100
+    assert sorted_rooms[0].capacity == 100
