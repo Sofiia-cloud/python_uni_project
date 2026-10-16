@@ -125,6 +125,38 @@ Django-проект и три приложения;
 
 Django Forms;
 
+## SQL project (PR7)
+
+This section supersedes the earlier planned-status notes below the original
+project description.
+
+The Django web app now reads its application data from `data/roomly.sqlite` via
+the built-in `sqlite3` module. The console app and JSON source files remain
+available.
+
+For the first web app launch, create the SQLite schema and import the JSON data:
+
+```powershell
+python -m db.import_json
+python manage.py migrate
+python manage.py runserver
+```
+
+Re-run `python -m db.import_json` to reload `rooms`, `users`, and `bookings` from
+their JSON files. Django's own `db.sqlite3` is separate.
+
+The web app includes `/rooms/`, `/bookings/`, `/rooms/available/?date=YYYY-MM-DD`,
+and `/bookings/statistics/`. Booking pages use SQL joins; room availability is
+filtered by date; statistics use `COUNT` and `GROUP BY`.
+
+- `sql/schema.sql` creates tables, foreign keys, constraints, and indexes.
+- `db/import_json.py` imports JSON into SQLite.
+- `db/database.py` opens connections with `sqlite3.Row` and foreign keys enabled.
+- `sql/queries.sql` contains `WHERE`, `JOIN`, `COUNT`, and `GROUP BY` examples.
+
+Validation commands: `python manage.py check`, `python -m pytest -v`, and
+`python -m flake8 . --extend-exclude=venv`.
+
 аутентификация пользователей;
 
 REST API и контейнеризация.

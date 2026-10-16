@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Свободные помещения — Roomly{% endblock %}
+{% block content %}
+<h1>Свободные помещения</h1>
+<form method="get" class="row g-2 mb-4">
+  <div class="col-auto">
+    <label for="date" class="form-label">Дата бронирования</label>
+    <input type="date" id="date" name="date" value="{{ booking_date }}" class="form-control">
+  </div>
+  <div class="col-auto align-self-end">
+    <button class="btn btn-primary" type="submit">Показать</button>
+  </div>
+</form>
+{% if booking_date %}
+  <ul class="list-group">
+    {% for room in rooms %}
+      {% include "rooms/includes/room_card.html" %}
+    {% empty %}
+      <li class="list-group-item">На эту дату свободных помещений нет.</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% endblock %}
