@@ -1,0 +1,16 @@
+.room-card {
+  border-left: 4px solid #0d6efd;
+}
+
+.booking-status {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.booking-status-cancelled {
+  background-color: #6c757d;
+}
+
+.roomly-logo {
+  height: 40px;
+}

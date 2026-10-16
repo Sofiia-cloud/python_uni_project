@@ -93,3 +93,11 @@ def show_bookings(bookings: list[Booking]) -> None:
     print('--- Бронирования ---')
     for booking in bookings:
         print(f'  id={booking.id}: {booking}')
+
+
+def find_booking_by_id(bookings, booking_id):
+    """Найти бронирование по идентификатору."""
+    for booking in bookings:
+        if booking.id == booking_id:
+            return booking
+    return None
