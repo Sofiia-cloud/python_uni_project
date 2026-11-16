@@ -2,6 +2,7 @@
 {% block title %}Помещения - Roomly{% endblock %} 
 {%block content %}
 <h1>Помещения</h1>
+<p><a class="btn btn-primary" href="{% url 'rooms:create' %}">Добавить помещение</a></p>
 <p>Всего помещений: {{ rooms|length }}</p>
 <ul class="list-group">
   {% for room in rooms %} {% include "rooms/includes/room_card.html" %} {% empty

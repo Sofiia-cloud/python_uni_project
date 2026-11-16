@@ -7,9 +7,9 @@
     <div class="card">
       <div class="card-body">
         <h1 class="card-title">Бронирование №{{ booking.id }}</h1>
-        <p class="card-text"><strong>Помещение:</strong> {{ booking.room_name }}</p>
+        <p class="card-text"><strong>Помещение:</strong> {{ booking.room.name }}</p>
         <p class="card-text"><strong>Дата:</strong> {{ booking.booking_date }}</p>
-        <p class="card-text"><strong>Пользователь:</strong> {{ booking.user_name }}</p>
+        <p class="card-text"><strong>Пользователь:</strong> {{ booking.user.name }} ({{ booking.user.email }})</p>
         <p class="card-text">
           <strong>Статус:</strong>
           {% include "bookings/includes/booking_status.html" %}
@@ -23,4 +23,11 @@
   <a href="{% url 'bookings:bookings' %}" class="btn btn-outline-secondary mt-3">
     ← К списку бронирований
   </a>
+  {% if booking and booking.status == 'active' %}
+    <a href="{% url 'bookings:edit' booking.id %}" class="btn btn-outline-primary mt-3">Редактировать</a>
+    <form method="post" action="{% url 'bookings:cancel' booking.id %}" class="d-inline">
+      {% csrf_token %}
+      <button class="btn btn-outline-danger mt-3" type="submit">Отменить бронирование</button>
+    </form>
+  {% endif %}
 {% endblock %}

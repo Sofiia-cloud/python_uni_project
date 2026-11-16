@@ -2,10 +2,11 @@
 {% block title %}Статистика бронирований — Roomly{% endblock %}
 {% block content %}
 <h1>Статистика бронирований</h1>
+<p>Активно: {{ status_counts.active }} · Отменено: {{ status_counts.cancelled }} · Завершено: {{ status_counts.completed }}</p>
 <ul class="list-group">
   {% for item in statistics %}
     <li class="list-group-item d-flex justify-content-between">
-      <span>{{ item.room_name }}</span>
+      <span>{{ item.name }}</span>
       <strong>{{ item.bookings_count }}</strong>
     </li>
   {% empty %}

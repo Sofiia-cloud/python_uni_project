@@ -19,3 +19,4 @@ __pycache__/
 # Базы данных
 *.sqlite3
 *.db
+media/

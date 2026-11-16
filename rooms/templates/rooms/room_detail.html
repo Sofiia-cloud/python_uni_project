@@ -11,12 +11,14 @@
 {% block content %}
   {% if room %}
     <div class="card">
+      {% if room.image %}<img src="{{ room.image.url }}" class="card-img-top" alt="{{ room.name }}">{% endif %}
       <div class="card-body">
         <h1 class="card-title">{{ room.name }}</h1>
         <p class="card-text"><strong>ID:</strong> {{ room.id }}</p>
         <p class="card-text">
           <strong>Вместимость:</strong> {{ room.capacity }} мест
         </p>
+        <p class="card-text"><strong>Категория:</strong> {{ room.capacity_category }}</p>
       </div>
     </div>
   {% else %}
@@ -27,4 +29,5 @@
   <a href="{% url 'rooms:list' %}" class="btn btn-outline-secondary mt-3">
     ← к списку помещений
   </a>
+  {% if room %}<a href="{% url 'rooms:edit' room.slug %}" class="btn btn-outline-primary mt-3">Изменить помещение</a>{% endif %}
 {% endblock %}

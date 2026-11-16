@@ -2,16 +2,36 @@
 {% block title %}Бронирования — Roomly{% endblock %}
 {% block content %}
 <h1>Бронирования</h1>
+<p><a class="btn btn-primary" href="{% url 'bookings:create' %}">Создать бронирование</a></p>
+<form method="get" class="row g-3 mb-4">
+  <div class="col-md-4">{{ filter_form.search.label_tag }}{{ filter_form.search }}</div>
+  <div class="col-md-2">{{ filter_form.booking_date.label_tag }}{{ filter_form.booking_date }}</div>
+  <div class="col-md-3">{{ filter_form.room.label_tag }}{{ filter_form.room }}</div>
+  <div class="col-md-2">{{ filter_form.status.label_tag }}{{ filter_form.status }}</div>
+  <div class="col-md-1 align-self-end"><button class="btn btn-outline-primary" type="submit">Найти</button></div>
+  <div class="col-12"><a href="{% url 'bookings:bookings' %}">Сбросить фильтры</a></div>
+</form>
+{% if filter_form.errors %}<div class="alert alert-danger">Проверьте параметры фильтрации: {{ filter_form.errors }}</div>{% endif %}
+<div class="mb-3">Сортировка:
+  <a href="?sort=-booking_date{% if query_params %}&{{ query_params }}{% endif %}">по дате</a> ·
+  <a href="?sort=room{% if query_params %}&{{ query_params }}{% endif %}">по помещению</a> ·
+  <a href="?sort=user{% if query_params %}&{{ query_params }}{% endif %}">по пользователю</a>
+</div>
 <ul class="list-group">
   {% for booking in bookings %}
-    <li class="list-group-item">
-      <a href="{% url 'bookings:detail' booking.id %}">
-        {{ booking.room_name }} — {{ booking.booking_date }}
-      </a>
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <span><a href="{% url 'bookings:detail' booking.id %}">{{ booking.room.name }} — {{ booking.booking_date }} — {{ booking.user.name }}</a></span>
       {% include "bookings/includes/booking_status.html" %}
     </li>
   {% empty %}
     <li class="list-group-item">Бронирования не найдены.</li>
   {% endfor %}
 </ul>
+{% if page_obj.paginator.num_pages > 1 %}
+<nav aria-label="Страницы бронирований" class="mt-3"><ul class="pagination">
+  {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&sort={{ sort }}{% if query_params %}&{{ query_params }}{% endif %}">Назад</a></li>{% endif %}
+  <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+  {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&sort={{ sort }}{% if query_params %}&{{ query_params }}{% endif %}">Далее</a></li>{% endif %}
+</ul></nav>
+{% endif %}
 {% endblock %}

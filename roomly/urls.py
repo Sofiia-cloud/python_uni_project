@@ -15,6 +15,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import include, path
 
 urlpatterns = [
@@ -23,3 +25,11 @@ urlpatterns = [
     path('rooms/', include('rooms.urls')),
     path('bookings/', include('bookings.urls')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += [path('__debug__/', include('debug_toolbar.urls'))]
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+admin.site.site_header = 'Администрирование Roomly'
+admin.site.site_title = 'Roomly Admin'
+admin.site.index_title = 'Управление бронированием помещений'
